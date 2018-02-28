@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<log4j:configuration>
+	<!-- 输出日志到控制台  ConsoleAppender -->   
+        <appender name="consoleAppender" class="org.apache.log4j.ConsoleAppender">  
+        <param name="Threshold" value="error"></param>  
+        <param name="Encoding" value="UTF-8" /> 		
+		<layout class="org.apache.log4j.TTCCLayout">  
+            <param name="ConversionPattern" value="TTCCLayout"></param>  
+        </layout>  
+        <!--过滤器设置输出的级别 -->
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="levelMin" value="DEBUG" />
+			<param name="levelMax" value="ERROR" />
+		</filter> 
+    </appender>  
+
+	<!-- 根logger的设置 -->
+	<root>
+	<!-- FATAL ,ERROR ,WARN ,INFO ,DEBUG -->
+		<priority value="INFO" />
+		<appender-ref ref="consoleAppender" />
+	</root>
+</log4j:configuration>  
