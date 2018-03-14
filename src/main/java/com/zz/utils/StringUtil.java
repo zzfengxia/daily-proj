@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -35,6 +36,62 @@ public class StringUtil {
 
         return sb.toString();
     }
+
+    /**
+     * 使用指定的分隔符将列表合并成一个字符串
+     *
+     * @param content   内容，Iterable的实现类
+     * @param separator 分隔符
+     * @return
+     */
+    public static String join(Iterable content, String separator) {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        if(separator == null) {
+            separator = "";
+        }
+
+        // todo 实现各种对象转为字符串的功能
+        Object value;
+        for (Iterator it = content.iterator(); it.hasNext(); sb.append(value.toString())) {
+            value = it.next();
+            if(first) {
+                first = false;
+            } else {
+                sb.append(separator);
+            }
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * 使用指定的分隔符将数组合并成一个字符串
+     *
+     * @param content   内容，数组
+     * @param separator 分隔符
+     * @return
+     */
+    public static String join(Object[] content, String separator) {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        if(separator == null) {
+            separator = "";
+        }
+
+        for (Object o : content) {
+            if(first) {
+                first = false;
+            }else {
+                sb.append(separator);
+            }
+
+            sb.append(o.toString());
+        }
+
+        return sb.toString();
+    }
+
 
     /**
      * 字符串是否为空，有空格存在则为false

@@ -41,8 +41,7 @@ import java.util.Set;
 
 /**
  * Created by Francis.zz on 2017/8/1.
- * 支持http单向认证忽略证书，https 双向认证带证书
- * 双向认证请求的证书密码需要KEY加密
+ * 支持https单向认证忽略证书，https 双向认证带证书，https 双向认证忽略证书，http请求
  * 使用httpclient4.5.x版本
  */
 public class CustomApacheHttpClient {
