@@ -2,6 +2,9 @@ package com.zz.interview;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Francis.zz on 2018/3/5.
  * java面试-基础
@@ -76,6 +79,8 @@ public class JavaBaseTopic {
      * String的intern方法分析
      * jdk6及以前的版本会把首次出现的字符串实例复制到 方法区(常量池)，再返回方法区字符串实例的引用；否则直接返回常量池中该字符串的引用
      * jdk7不再复制字符串实例，而是在常量池中记录首次出现的字符串实例的引用，否则返回常量池的引用
+     *
+     * new String, new Integer创建了几个对象的问题，以及new String + new String的问题；可以使用debug查看
      */
     @Test
     public void testStringIntern() {
@@ -96,6 +101,17 @@ public class JavaBaseTopic {
         System.out.println(str1 == str2);       // false
         System.out.println(str1.intern() == str1);  // false
         System.out.println(str1 == "SEUCalvin");    // false
+    }
+
+    public static void main(String[] args) {
+        String s1 = new String("a");
+        String s2 = "a";
+        List<String> aList = new ArrayList<>();
+        aList.add(s1);
+
+        Integer i1 = new Integer(1);
+        Integer i2 = 1;
+        System.out.println(s1 + s2);
     }
 
     private void change(A a) {
