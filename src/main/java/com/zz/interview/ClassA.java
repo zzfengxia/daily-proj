@@ -1,4 +1,4 @@
-package com.zz.interviewquestion;
+package com.zz.interview;
 
 /**
  * Created by Francis on 2017/3/15.
