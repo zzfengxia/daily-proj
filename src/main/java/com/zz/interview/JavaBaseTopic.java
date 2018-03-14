@@ -21,7 +21,7 @@ public class JavaBaseTopic {
         A a = new A();
         a.name = "a";
         change(a);
-        System.out.println(a.name); // 仍然输出“a”，因为方法中引用的副本指向了新的引用。引用本身没有改变
+        System.out.println(a.name); // 输出“b”，因为方法中引用的副本指向了新的引用。引用本身没有改变，但是引用的对象中的内容变了
 
         /* ------- 分隔线 -------- */
         String s = new String("ab");
@@ -74,30 +74,34 @@ public class JavaBaseTopic {
 
     /**
      * String的intern方法分析
+     * jdk6及以前的版本会把首次出现的字符串实例复制到 方法区(常量池)，再返回方法区字符串实例的引用；否则直接返回常量池中该字符串的引用
+     * jdk7不再复制字符串实例，而是在常量池中记录首次出现的字符串实例的引用，否则返回常量池的引用
      */
     @Test
     public void testStringIntern() {
         String s = new String("1");
         String is1 = s.intern();
         String s2 = "1";
-        System.out.println(s == s2);
-        System.out.println(is1 == s2);
+        System.out.println(s == s2);            // false
+        System.out.println(is1 == s2);          // true
 
         String s3 = new String("1") + new String("1");
         String is2 = s3.intern();
         String s4 = "11";
-        System.out.println(s3 == s4);
-        System.out.println(s4 == is2);
+        System.out.println(s3 == s4);           // true
+        System.out.println(s4 == is2);          // true
 
-        //String str2 = "SEUCalvin";//新加的一行代码，其余不变
-        String str1 = new String("SEU")+ new String("Calvin");
-        System.out.println(str1.intern() == str1);
-        System.out.println(str1 == "SEUCalvin");
+        String str2 = "SEUCalvin";//新加的一行代码，其余不变
+        String str1 = new String("SEU") + new String("Calvin");
+        System.out.println(str1 == str2);       // false
+        System.out.println(str1.intern() == str1);  // false
+        System.out.println(str1 == "SEUCalvin");    // false
     }
 
     private void change(A a) {
-        a = new A();
         a.name = "b";
+        a = new A();
+        a.name = "c";
     }
 
     private void change(String s) {
