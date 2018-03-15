@@ -79,26 +79,53 @@ public class JavaBaseTopic {
      * String的intern方法分析
      * jdk6及以前的版本会把首次出现的字符串实例复制到 方法区(常量池)，再返回方法区字符串实例的引用；否则直接返回常量池中该字符串的引用
      * jdk7不再复制字符串实例，而是在常量池中记录首次出现的字符串实例的引用，否则返回常量池的引用
+     *
+     * new String, new Integer创建了几个对象的问题，以及的问题；可以使用debug查看
      */
     @Test
     public void testStringIntern() {
-        String s = new String("1");
-        String is1 = s.intern();
-        String s2 = "1";
-        System.out.println(s == s2);
-        System.out.println(is1 == s2);
+        // 一下输出都是基于java7环境
+        String s = new String("1");         // 创建了两个对象，heap和常量池;s为heap的引用
+        String is1 = s.intern();            // 常量池中已有“1”，返回常量池的引用
+        String s2 = "1";                    // 常量池中已有“1”，返回常量池的引用
+        System.out.println(s == s2);        // false(s是heap上的引用，s2是常量池的引用)
+        System.out.println(is1 == s2);      // true
 
-        String s3 = new String("1") + new String("1");
-        String is2 = s3.intern();
-        String s4 = "11";
-        System.out.println(s3 == s4);
-        System.out.println(s4 == is2);
+        String s3 = new String("1") + new String("1");  // s3为heap上的引用(这里会优化为StringBuilder，所以不会再常量次中创建)
+        String is2 = s3.intern();           // 常量中没有，所以会返回heap上实例的引用(常量池中记录heap实例的引用)
+        String s4 = "11";                   // 常量池有“11”，但实际是上面记录的heap上的引用，所以这里也是指向的heap上的引用
+        System.out.println(s3 == s4);       // true
+        System.out.println(s4 == is2);      // true
 
-        String str2 = "SEUCalvin";//新加的一行代码，其余不变
-        String str1 = new String("SEU") + new String("Calvin");
-        System.out.println(str1 == str2);
-        System.out.println(str1.intern() == str1);
-        System.out.println(str1 == "SEUCalvin");
+        // 2 start
+        String str2 = "SEUCalvin";                                  // 常量池的引用
+        String str1 = new String("SEU") + new String("Calvin");     // 创建了5个对象，str1为heap上的引用
+        System.out.println(str1 == str2);                           // false
+        System.out.println(str1.intern() == str1);                  // false 由于常量池已存在“SEUCalvin”字符串，所以str1.intern()返回常量池的引用
+        System.out.println(str1 == "SEUCalvin");                    // false
+        // 2 end
+
+        String o1 = new String("C") + "alvin";                    // 这样合并的形式不会在常量池中创建“Calvin”实例
+        System.out.println(o1.intern() == o1);                    // 注释掉“2”的代码，此处返回true;打开后打印false，因为代码块2 中已经在常量池创建了“Calvin”实例
+
+        String sb1 = new StringBuilder("Are").toString();         // 这种形式也会在常量池创建“Are”，因为“Are”本身就是String常量
+        System.out.println(sb1.intern() == sb1);                  // false
+    }
+
+    /**
+     * 创建了几个对象的问题
+     * new String + new String会在编译器使用StringBuilder优化
+     */
+    @Test
+    public void howMuchObjects() {
+        //String s1 = "a" + "b";                     // 1个,"ab"在常量池
+        //String s2 = new String("abc");    // 2个,heap和常量池
+        String s3 = new String("ab");     // 1个,前面已经在常量池中创建了,所有只在heap上
+        String s4 = new String("12") + "34";    // 4个；常量池两个，heap上有“12” “1234”
+
+        //Integer i1 = 1;
+        Integer i2 = new Integer(130);
+        //System.out.println(s4);
     }
 
     private void change(A a) {
