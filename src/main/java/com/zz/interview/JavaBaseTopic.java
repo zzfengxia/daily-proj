@@ -2,6 +2,9 @@ package com.zz.interview;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Francis.zz on 2018/3/5.
  * java面试-基础
@@ -82,20 +85,20 @@ public class JavaBaseTopic {
         String s = new String("1");
         String is1 = s.intern();
         String s2 = "1";
-        System.out.println(s == s2);            // false
-        System.out.println(is1 == s2);          // true
+        System.out.println(s == s2);
+        System.out.println(is1 == s2);
 
         String s3 = new String("1") + new String("1");
         String is2 = s3.intern();
         String s4 = "11";
-        System.out.println(s3 == s4);           // true
-        System.out.println(s4 == is2);          // true
+        System.out.println(s3 == s4);
+        System.out.println(s4 == is2);
 
         String str2 = "SEUCalvin";//新加的一行代码，其余不变
         String str1 = new String("SEU") + new String("Calvin");
-        System.out.println(str1 == str2);       // false
-        System.out.println(str1.intern() == str1);  // false
-        System.out.println(str1 == "SEUCalvin");    // false
+        System.out.println(str1 == str2);
+        System.out.println(str1.intern() == str1);
+        System.out.println(str1 == "SEUCalvin");
     }
 
     private void change(A a) {
