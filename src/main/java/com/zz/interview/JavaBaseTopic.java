@@ -70,6 +70,12 @@ public class JavaBaseTopic {
         Integer i5 = 200;
         System.out.println(i4 == i5);                       // false
 
+        Integer a = new Integer(3);
+        Integer b = 3;                  // 将3自动装箱成Integer类型
+        int c = 3;
+        System.out.println(a == b);     // false 两个引用没有引用同一对象
+        System.out.println(a == c);     // true a自动拆箱成int类型再和c比较
+
         /* ------- 分隔线 -------- */
         // 只要字符串拼接中有对象时，就会创建StringBuilder对象，然后用append方法拼接，最后调用StringBuilder的toString方法返回一个重新创建的字符串
         String composeStr = "ai" + s1 + 5 + i1;             // 编译后:(new StringBuilder()).append("ai").append(s1).append(5).append(i1).toString();
@@ -126,6 +132,57 @@ public class JavaBaseTopic {
         //Integer i1 = 1;
         Integer i2 = new Integer(130);
         //System.out.println(s4);
+    }
+
+    /**
+     * 反转字符串
+     */
+    @Test
+    public void testReverseString() {
+        System.out.println(reverse("Hello"));
+    }
+
+    /**
+     * try...finally return执行先后问题
+     *
+     * try中有return语句时，finally语句仍然会被执行。return的值先保存起来，再执行finally(return)，最后返回
+     */
+    @Test
+    public void testException() {
+        System.out.println(exceHandle());
+    }
+
+    @Test
+    public void base() {
+        // float f = 3.4;   // 错误，3.4是double类型，向下转型需要强转
+        float f = 3.4F;
+        System.out.println(f);
+
+        short st1 = 1;
+        //st1 = st1 + 1;   // 错误写法，1是int类型，向下转型需要强转
+        st1 += 1;           // 这种写法隐含了强转
+
+        System.out.println(Math.round(-1.6)); // 加0.5向下取整
+    }
+
+    private String exceHandle() {
+        String result;
+        try {
+            result = "1";
+            return result;
+        }finally {
+            result = "2";
+            System.out.println("finally executing...");
+        }
+    }
+
+    /**
+     * 递归方法反转字符串
+     */
+    private String reverse(String originStr) {
+        if(originStr == null || originStr.length() <= 1)
+            return originStr;
+        return reverse(originStr.substring(1)) + originStr.charAt(0);
     }
 
     private void change(A a) {
