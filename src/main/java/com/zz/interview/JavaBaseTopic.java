@@ -2,6 +2,10 @@ package com.zz.interview;
 
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -142,16 +146,6 @@ public class JavaBaseTopic {
         System.out.println(reverse("Hello"));
     }
 
-    /**
-     * try...finally return执行先后问题
-     *
-     * try中有return语句时，finally语句仍然会被执行。return的值先保存起来，再执行finally(return)，最后返回
-     */
-    @Test
-    public void testException() {
-        System.out.println(exceHandle());
-    }
-
     @Test
     public void base() {
         // float f = 3.4;   // 错误，3.4是double类型，向下转型需要强转
@@ -165,15 +159,26 @@ public class JavaBaseTopic {
         System.out.println(Math.round(-1.6)); // 加0.5向下取整
     }
 
-    private String exceHandle() {
-        String result;
-        try {
-            result = "1";
-            return result;
-        }finally {
-            result = "2";
-            System.out.println("finally executing...");
-        }
+    /**
+     * 使用java7的NIO和传统递归的方式遍历文件
+     * 文件夹数量大时，NIO效率较优
+     */
+    @Test
+    public void testTraversalFile() throws IOException {
+        long start = System.currentTimeMillis();
+        String path = "E:\\work\\一卡通对接\\吉林一卡通\\生产卡数据\\20180323";
+        // NIO
+        traversal(path);
+        long end = System.currentTimeMillis();
+
+        long start2 = System.currentTimeMillis();
+        File file = new File(path);
+        // 递归
+        traversal(file);
+        long end2 = System.currentTimeMillis();
+
+        System.out.println("NIO耗时：" + (end - start));
+        System.out.println("递归耗时：" + (end2 - start2));
     }
 
     /**
@@ -197,5 +202,40 @@ public class JavaBaseTopic {
 
     public class A {
         public String name;
+    }
+
+    /**
+     * 使用java7的nio遍历文件
+     *
+     * @param path
+     * @throws IOException
+     */
+    public void traversal(String path) throws IOException {
+        Path initPath = Paths.get(path);
+        Files.walkFileTree(initPath, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                System.out.println(file.getFileName().toString());
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+
+    /**
+     * 传统递归方法遍历文件
+     *
+     * @param file
+     * @throws Exception
+     */
+    public void traversal(File file) {
+        if(file.isDirectory()) {
+            File[] files = file.listFiles();
+            for(File f : files) {
+                traversal(f);
+            }
+        }else {
+            // do something
+            System.out.println(file.getName());
+        }
     }
 }
