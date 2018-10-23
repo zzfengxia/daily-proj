@@ -308,4 +308,32 @@ public class StringUtil {
             e.printStackTrace();
         }
     }
+
+    /**
+     * 填充字符串(补全)
+     *
+     * @param origin 原始数据
+     * @param length 预期长度
+     * @param fillingChar 填充字符
+     * @param model  模式;1:左补 0:右补
+     * @return
+     */
+    public static String completeString(String origin, int length, char fillingChar, int model) {
+        int diffLen = length - origin.length();
+        if(diffLen <= 0) {
+            return origin;
+        }
+        StringBuilder sb = new StringBuilder();
+        if(model == 0) {
+            sb.append(origin);
+        }
+        for (int i = 0; i < diffLen; i++) {
+            sb.append(fillingChar);
+        }
+        if(model == 1) {
+            sb.append(origin);
+        }
+
+        return sb.toString();
+    }
 }

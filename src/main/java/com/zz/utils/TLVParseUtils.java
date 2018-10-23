@@ -1,6 +1,12 @@
 package com.zz.utils;
 
-import java.util.*;
+import com.zz.exception.BizException;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Francis.zz on 2018/1/13.
@@ -133,9 +139,90 @@ public class TLVParseUtils {
         return result;
     }
 
+    public static List<TLVData> parseTLVString(String hexData) {
+        List<TLVData> result = new ArrayList<>();
+        int position = 0;
+        while(position < hexData.length()) {
+            String tag = fetchTag(hexData, position);
+            position += tag.length();
+
+            Length len = fetchLength(hexData, position);
+            position += len.getLengthOfL();
+
+            String val = hexData.substring(position, position + len.getLengthOfV());
+            position += len.getLengthOfV();
+
+            TLVData tlvData = new TLVData(tag, len, val);
+            result.add(tlvData);
+        }
+
+        return result;
+    }
+
+    /**
+     * 使用提供的tag和数据原文组装完整TLV格式的数据
+     * 数据原文长度超过0x80,L则为0x81LC
+     *
+     * @param oriV
+     * @param tag
+     * @return
+     */
+    public static String assembleTLVDataWithTag(String oriV, String tag) {
+        if(StringUtils.isEmpty(tag)) {
+            return oriV;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(tag);
+
+        int len = oriV.length() / 2;
+        String lenStr = HexUtil.toHexString(len);
+        if(len > 0x80) {
+            // 长度大于0x80时，bit8为1,bit7-bit1标识实际长度的字节数
+            String lt = HexUtil.toHexString((0x7F & (lenStr.length() / 2)) | 0x80);
+            sb.append(lt).append(lenStr);
+        } else {
+            sb.append(lenStr);
+        }
+
+        sb.append(oriV);
+
+        return sb.toString();
+    }
+
+    /**
+     * 使用给定数据替换指定tag的原始数据
+     *
+     * @param oriTLV 原始TLV数据
+     * @param tag    指定tag
+     * @param data   替换数据
+     * @return
+     */
+    public static String replaceDataOfTag(String oriTLV, String tag, String data) {
+        if(StringUtils.isEmpty(oriTLV)) {
+            return assembleTLVDataWithTag(data, tag);
+        }
+
+        StringBuilder result = new StringBuilder();
+        List<TLVData> tlvDatas = parseTLVString(oriTLV);
+        for(TLVData tlvData : tlvDatas) {
+            String tlvTag = tlvData.getTag();
+            String tlvValue = tlvData.getValue();
+
+            if(tag.equals(tlvTag)) {
+                if(tlvData.getLength().getLengthOfV() != data.length()) {
+                    throw new BizException("TLV格式错误：替换数据[%s]长度不够 %s", data, tlvData.getLength().getLengthOfV());
+                }
+                tlvValue = data;
+            }
+
+            result.append(assembleTLVDataWithTag(tlvValue, tlvTag));
+        }
+
+        return result.toString();
+    }
+
     public static class Length {
         private String originData;  // L原始数据
-        private int lengthOfL;      // L长度
         private int lengthOfV;      // V长度
 
         public String getOriginData() {
@@ -159,16 +246,39 @@ public class TLVParseUtils {
         }
     }
 
-    public static void main(String[] args) {
-        List<String> result = TLVParseUtils.parseTLVStringToList("70369F4701039F48009F49039F37049F4A01825F300202209F080200309F631001691210FFFFFFFF10FFFFFFFFFFFFFF9F1401009F230100");
-        for(String s : result) {
-            System.out.println(s);
+    public static class TLVData {
+        private String tag;
+        private Length length;
+        private String value;
+
+        public TLVData(String tag, Length length, String value) {
+            this.tag = tag;
+            this.length = length;
+            this.value = value;
         }
 
-        Map<String, String> result2 = TLVParseUtils.parseTLVStringToMap("9F4701039F48009F49039F37049F4A01825F300202209F080200309F631001691210FFFFFFFF10FFFFFFFFFFFFFF9F1401009F230100");
-        Set<String> keyset = result2.keySet();
-        for(String s : keyset) {
-            System.out.println(s + " " + result2.get(s));
+        public String getTag() {
+            return tag;
+        }
+
+        public void setTag(String tag) {
+            this.tag = tag;
+        }
+
+        public Length getLength() {
+            return length;
+        }
+
+        public void setLength(Length length) {
+            this.length = length;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
         }
     }
 }

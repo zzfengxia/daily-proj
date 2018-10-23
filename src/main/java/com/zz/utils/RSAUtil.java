@@ -1,7 +1,7 @@
 package com.zz.utils;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zz.bean.User;
-import com.zz.dailytest.TestHex;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Assert;
 import org.junit.Test;
@@ -60,7 +60,7 @@ public class RSAUtil {
         byte[] keyByte = priKey.getEncoded();
         Map<String, Object> priKeyInfo = new HashMap<String, Object>();
         // 将私钥转换为16进制字符串
-        priKeyInfo.put(PRIVATE_KEY_HEX, TestHex.encodeHexStr(keyByte));
+        priKeyInfo.put(PRIVATE_KEY_HEX, HexUtil.byteArrayToHexString(keyByte));
         // 保存私钥数据
         priKeyInfo.put(PRIVATE_KEY, priKey);
         if(priKey instanceof RSAPrivateKey) {
@@ -79,7 +79,7 @@ public class RSAUtil {
         // 保存原始公钥
         pubKeyInfo.put(PRIVATE_KEY, pubKey);
         byte[] pubByte = pubKey.getEncoded();
-        pubKeyInfo.put(PUBLIC_KEY_HEX, TestHex.encodeHexStr(pubByte));
+        pubKeyInfo.put(PUBLIC_KEY_HEX, HexUtil.byteArrayToHexString(pubByte));
         if(pubKey instanceof RSAPublicKey) {
             RSAPublicKey rsaPubKey = (RSAPublicKey) pubKey;
             // 保存RSAPublicKey的模数和指数
@@ -139,7 +139,7 @@ public class RSAUtil {
         // 签名信息
         byte[] singInfo = signature.sign();
 
-        return TestHex.encodeHexStr(singInfo);
+        return HexUtil.byteArrayToHexString(singInfo);
     }
 
     /**
@@ -299,7 +299,7 @@ public class RSAUtil {
             // 使用模和指数生成私钥签名
             RSAPrivateKey priKeyBM = (RSAPrivateKey) RSAUtil.getKey(priMo, priPo, PRIVATE_KEY);
             System.out.println("---------------使用模和指生成的私钥(16进制)---------------");
-            System.out.println(TestHex.encodeHexStr(priKeyBM.getEncoded()));
+            System.out.println(HexUtil.byteArrayToHexString(priKeyBM.getEncoded()));
             String signHex = RSAUtil.getSignHex(data, priKeyBM, SIGNATURE_ALGORITHM);
             System.out.println("---------------签名后的数据(16进制)---------------");
             System.out.println(signHex);
@@ -319,7 +319,7 @@ public class RSAUtil {
             System.out.println(pubPo);
 
             // 使用原始的公钥验签
-            boolean isTrue = RSAUtil.verifySign(TestHex.decodeHex(signStr.toCharArray()), data, publicKey, SIGNATURE_ALGORITHM);
+            boolean isTrue = RSAUtil.verifySign(HexUtil.hexToByteArray(signStr.toCharArray()), data, publicKey, SIGNATURE_ALGORITHM);
             System.out.println("---------------验签结果---------------");
             System.out.println(isTrue);
             Assert.assertTrue(isTrue);
@@ -327,8 +327,8 @@ public class RSAUtil {
             // 使用模数和指数生成公钥验签
             RSAPublicKey pubKeyMP = (RSAPublicKey) RSAUtil.getKey(pubMo, pubPo, PUBLIC_KEY);
             System.out.println("---------------使用模和指生成的公钥(16进制)---------------");
-            System.out.println(TestHex.encodeHexStr(pubKeyMP.getEncoded()));
-            isTrue = RSAUtil.verifySign(TestHex.decodeHex(signHex.toCharArray()), data, pubKeyMP, SIGNATURE_ALGORITHM);
+            System.out.println(HexUtil.byteArrayToHexString(pubKeyMP.getEncoded()));
+            isTrue = RSAUtil.verifySign(HexUtil.hexToByteArray(signHex.toCharArray()), data, pubKeyMP, SIGNATURE_ALGORITHM);
             System.out.println("---------------验签结果---------------");
             System.out.println(isTrue);
             Assert.assertTrue(isTrue);

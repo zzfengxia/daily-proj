@@ -69,7 +69,7 @@ public class MockKeyDerivation {
         byte[] factor2 = getKsFactorBySEID(seId);
         // 使用3DES加密二级分散因子
         finalKey = DESUtil.des3EncryptECB(secondKey, factor2);
-        System.out.println("分散后的密钥：" + HexUtil.encodeHexStr(finalKey));
+        System.out.println("分散后的密钥：" + HexUtil.byteArrayToHexString(finalKey));
 
         return finalKey;
     }
@@ -93,7 +93,7 @@ public class MockKeyDerivation {
         temp = DESUtil.des3EncryptECB(key, temp);
         System.arraycopy(temp, 0, finalKey, 8, 8);
 
-        System.out.println("-- 分散后的密钥：" + HexUtil.encodeHexStr(finalKey));
+        System.out.println("-- 分散后的密钥：" + HexUtil.byteArrayToHexString(finalKey));
         return finalKey;
     }
 
@@ -124,7 +124,7 @@ public class MockKeyDerivation {
         for(int i = 0; i < 10; i++) {
             result[i] = (byte) (seId[i] ^ temp[i]);
         }
-        System.out.println("Generating factor is [" + HexUtil.encodeHexStr(result) + "].");
+        System.out.println("Generating factor is [" + HexUtil.byteArrayToHexString(result) + "].");
 
         return result;
     }
@@ -154,7 +154,7 @@ public class MockKeyDerivation {
             throw new Exception("-- Invalid KeyType["+keyType+"] to retrieve factor.");
         }
 
-        System.out.println("-- KeyType["+keyType+"] factor retrieved: " + HexUtil.encodeHexStr(factor));
+        System.out.println("-- KeyType["+keyType+"] factor retrieved: " + HexUtil.byteArrayToHexString(factor));
         return factor;
     }
 
@@ -176,7 +176,7 @@ public class MockKeyDerivation {
         for(int i = 0; i < seId.length(); i++) {
             factor[i] = HexUtil.hexToByte("0" + seId.charAt(i));
         }
-        System.out.println("二级分散因子：" + HexUtil.encodeHexStr(factor));
+        System.out.println("二级分散因子：" + HexUtil.byteArrayToHexString(factor));
         return factor;
     }
 }

@@ -108,13 +108,13 @@ public class DESUtil {
                 System.out.print(b + "\t");
             }
             System.out.println();
-            System.out.println(HexUtil.encodeHexStr(enData));
+            System.out.println(HexUtil.byteArrayToHexString(enData));
 
             // 解密
             byte[] deData = des3DecryptECB(HexUtil.hexToByteArray(hexKey), enData);
             System.out.println("解密后的数据(HexStr)：");
-            System.out.println(HexUtil.encodeHexStr(deData));
-            Assert.assertEquals(HexUtil.encodeHexStr(deData), dataHex);
+            System.out.println(HexUtil.byteArrayToHexString(deData));
+            Assert.assertEquals(HexUtil.byteArrayToHexString(deData), dataHex);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -296,7 +296,7 @@ public class DESUtil {
     /**
      * des加密算法，ECB方式，NoPadding模式，数据字节必须是8的整数倍
      * @param key
-     * @param data 数据字节必须是8的整数倍
+     * @param content 数据字节必须是8的整数倍
      * @return 加密结果
      * @throws GeneralSecurityException
      */
@@ -311,7 +311,7 @@ public class DESUtil {
     /**
      * des解密算法，ECB方式，NoPadding模式，数据字节必须是8的整数倍
      * @param key 秘钥
-     * @param data 数据字节必须是8的整数倍
+     * @param content 数据字节必须是8的整数倍
      * @throws GeneralSecurityException
      * @return
      */

@@ -1,4 +1,4 @@
-package com.card.common.util;
+package com.zz.utils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

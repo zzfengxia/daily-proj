@@ -33,9 +33,9 @@ public class TestKeyDerivation {
         byte[] key2 = MockKeyDerivation.generateUICCKey((byte) 0x0C, params);
         byte[] key3 = MockKeyDerivation.generateUICCKey((byte) 0x0D, params);
 
-        System.out.println("-- UICC DK1: " + HexUtil.encodeHexStr(key1));
-        System.out.println("-- UICC DK2: " + HexUtil.encodeHexStr(key2));
-        System.out.println("-- UICC DK3: " + HexUtil.encodeHexStr(key3));
+        System.out.println("-- UICC DK1: " + HexUtil.byteArrayToHexString(key1));
+        System.out.println("-- UICC DK2: " + HexUtil.byteArrayToHexString(key2));
+        System.out.println("-- UICC DK3: " + HexUtil.byteArrayToHexString(key3));
     }
 
     /** 测试深圳通密钥分散 */
@@ -50,9 +50,9 @@ public class TestKeyDerivation {
         byte[] key3 = MockKeyDerivation.generateSZTKey((byte) 0x03, params);
         byte[] key4 = MockKeyDerivation.generateSZTKey((byte) 0x73, params);
 
-        System.out.println("-- UICC DK1: " + HexUtil.encodeHexStr(key1));
-        System.out.println("-- UICC DK2: " + HexUtil.encodeHexStr(key2));
-        System.out.println("-- UICC DK3: " + HexUtil.encodeHexStr(key3));
-        System.out.println("-- UICC DK4: " + HexUtil.encodeHexStr(key4));
+        System.out.println("-- UICC DK1: " + HexUtil.byteArrayToHexString(key1));
+        System.out.println("-- UICC DK2: " + HexUtil.byteArrayToHexString(key2));
+        System.out.println("-- UICC DK3: " + HexUtil.byteArrayToHexString(key3));
+        System.out.println("-- UICC DK4: " + HexUtil.byteArrayToHexString(key4));
     }
 }

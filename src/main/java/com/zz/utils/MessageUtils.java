@@ -18,7 +18,7 @@ public class MessageUtils {
             byte[] byteArray = inStr.getBytes("UTF-8");
             byte[] md5Bytes = md5.digest(byteArray);
 
-            return HexUtil.encodeHexStr(md5Bytes);
+            return HexUtil.byteArrayToHexString(md5Bytes);
         } catch (Exception e) {
             return null;
         }
@@ -36,7 +36,7 @@ public class MessageUtils {
             byte[] byteArray = inStr.getBytes("UTF-8");
             byte[] shaBytes = sha.digest(byteArray);
 
-            return HexUtil.encodeHexStr(shaBytes);
+            return HexUtil.byteArrayToHexString(shaBytes);
         } catch (Exception e) {
             return null;
         }

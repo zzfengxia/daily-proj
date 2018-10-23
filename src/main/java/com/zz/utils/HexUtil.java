@@ -1,57 +1,24 @@
 package com.zz.utils;
 
-import org.junit.Assert;
-import org.junit.Test;
+import com.zz.exception.BizException;
 
 /**
- * Created by Francis.zz on 2016-04-25.
+ * Created by zengzheng on 2016-04-25.
  * 描述：16进制与字节数组的转换 <br/>
- * 使用jar包：
  */
 public class HexUtil {
 
     public static final int CONVERT_MODEL_UPPER = 0;
-    public static final int CONVERT_MODEL_LOWER = 1;
 
-    @Test
-    public void testHex() {
-        String data = "hi, this is str to hex example! 你好，这是字符串转为16进制的测试！";
-        try {
-            String hexStr = encodeHexStr(data.getBytes());
-            String decodeStr = decodeHexStr(hexStr);
-
-            System.out.println("------------------原数据------------------");
-            System.out.println(data);
-            System.out.println("------------------16进制字符串------------------");
-            System.out.println(hexStr);
-            System.out.println("------------------解码后的数据------------------");
-            System.out.println(decodeStr);
-            Assert.assertEquals(data, decodeStr);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    public void testGeneric() {
-        String hexData = "2710";
-        String strData = "我你好";
-        try {
-            System.out.println(decodeHexStr(hexData));
-            System.out.println(encodeHex(strData.getBytes()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
     /**
      * 将字节数组转换为16进制字符数据
+     *
      * @param data
      * @return
-     * @throws Exception
      */
-    public static char[] encodeHex(byte[] data) throws Exception {
+    public static char[] byteArrayToCharArray(byte[] data) {
         if(data == null || data.length == 0) {
-            throw new Exception("不存在需要转换的数据!");
+            throw new BizException("不存在需要转换的数据!");
         }
         int dataLen = data.length;
         char[] enChar = new char[dataLen << 1];
@@ -69,18 +36,17 @@ public class HexUtil {
 
     /**
      * 将字节数组转换为16进制字符串
+     *
      * @param data
      * @param type 大写或小写
      * @return
-     * @throws Exception
      */
-    public static String encodeHexStr(byte[] data, int type) throws Exception {
-        type = type == -1 ? CONVERT_MODEL_UPPER : type;
-        String result = null;
+    public static String byteArrayToHexString(byte[] data, int type) {
+        String result;
         if(type == CONVERT_MODEL_UPPER) {
-            result = new String(encodeHex(data)).toUpperCase();
+            result = new String(byteArrayToCharArray(data)).toUpperCase();
         }else {
-            result = new String(encodeHex(data)).toLowerCase();
+            result = new String(byteArrayToCharArray(data)).toLowerCase();
         }
 
         return result;
@@ -90,27 +56,26 @@ public class HexUtil {
      * 将字节数组转换为16进制字符串
      * @param data
      * @return
-     * @throws Exception
      */
-    public static String encodeHexStr(byte[] data) throws Exception {
-        return encodeHexStr(data, -1);
+    public static String byteArrayToHexString(byte[] data) {
+        return byteArrayToHexString(data, CONVERT_MODEL_UPPER);
     }
 
     /**
      * 16进制字符串解码为字节数组
+     *
      * @param data
      * @return
-     * @throws Exception
      */
-    public static byte[] hexToByteArray(char[] data) throws Exception {
+    public static byte[] hexToByteArray(char[] data) {
         if(data == null || data.length == 0) {
-            throw new Exception("不存在需要解析的数据!");
+            throw new IllegalArgumentException("不存在需要解析的数据!");
         }
         int dataLen = data.length;
         if((dataLen & 0x01) != 0) {
-            throw new Exception("需要解析的字符长度应为偶数!");
+            throw new IllegalArgumentException("需要解析的字符长度应为偶数!");
         }
-        byte[] deByte = new byte[dataLen >>> 1];
+        byte[] deByte = new byte[dataLen >> 1];
         for(int i = 0, j = 0; j < dataLen; i++) {
             int hexHigh = Character.digit(data[j++], 16) << 4;
             int hexLow = Character.digit(data[j++], 16);
@@ -121,48 +86,90 @@ public class HexUtil {
 
     /**
      * 16进制字符串解码为字节数组
+     *
      * @param data
      * @return
-     * @throws Exception
      */
-    public static byte[] hexToByteArray(String data) throws Exception {
-        String[] tempData = data.split(" ");
-        if(tempData.length > 1) {
-            data = StringUtil.arrayToString(tempData, null);
-        }
+    public static byte[] hexToByteArray(String data) {
         return hexToByteArray(data.toCharArray());
     }
 
     /**
      * 16进制字符串转换为字节
+     *
      * @param data
      * @return
-     * @throws Exception
      */
-    public static byte hexToByte(String data) throws Exception {
+    public static byte hexToByte(String data) {
         if(data == null || data.length() != 2) {
-            throw new Exception("Hex String is invalid.");
+            throw new IllegalArgumentException("Hex String is invalid.");
         }
         return hexToByteArray(data)[0];
     }
 
     /**
-     * 16进制字符串解码为正常字符串数据
-     * @param data
-     * @return
-     * @throws Exception
+     * 大端转为10进制
+     * 最多4个字节，因为int只有4个字节，最大值7FFFFFFF
      */
-    public static String decodeHexStr(char[] data) throws Exception {
-        return new String(hexToByteArray(data));
+    public static int bigEndianToInt(byte[] bigByte) {
+        if(bigByte.length > 4)
+            throw new IllegalArgumentException("more than 4 bytes");
+        if(bigByte.length == 4 && (bigByte[0] & 0xFF) > 0x7F )
+            throw new NumberFormatException("more than maximum limit");
+
+        int resInt = 0;
+
+        int i = bigByte.length - 1;
+        for (byte b : bigByte) {
+            resInt |= (b & 0xFF) << (8 * i--);
+        }
+
+        return resInt;
     }
 
     /**
-     * 16进制字符串解码为正常字符串数据
-     * @param data
+     * 大端转为10进制long
+     * 最大值7FFFFFFFFFFFFFFF
+     *
+     * @param bigByte
      * @return
-     * @throws Exception
      */
-    public static String decodeHexStr(String data) throws Exception {
-        return new String(hexToByteArray(data));
+    public static long bigEndianToLong(byte[] bigByte) {
+        if(bigByte.length > 8)
+            throw new IllegalArgumentException("more than 8 bytes");
+        if(bigByte.length == 8 && (bigByte[0] & 0xFF) > 0x7F )
+            throw new NumberFormatException("more than maximum limit");
+
+        long resLong = 0;
+        int i = bigByte.length - 1;
+        for(byte b : bigByte) {
+            resLong |= (long) (b & 0xFF) << (8 * i--);
+        }
+
+        return resLong;
+    }
+
+    /**
+     * int转为16进制字符串(自动补位)
+     */
+    public static String toHexString(int data) {
+        String temp = Integer.toHexString(data);
+        if(temp.length() % 2 != 0) {
+            temp = "0" + temp;
+        }
+        return temp.toUpperCase();
+    }
+
+    public static String toHexString(int data, int length) {
+        String temp = Integer.toHexString(data);
+        if(temp.length() < length) {
+            StringBuilder sb = new StringBuilder();
+            int l = length - temp.length();
+            for(int i = 0; i < l; i++) {
+                sb.append("0");
+            }
+            return sb.append(temp).toString().toUpperCase();
+        }
+        return temp.toUpperCase();
     }
 }

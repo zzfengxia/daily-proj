@@ -55,6 +55,6 @@ public class Pboc3DesMACUtils {
         String checkValue = "59D363928ACC44AB";
         byte[] macValue = Pboc3DesMACUtils.calculatePboc3desMAC(HexUtil.hexToByteArray(data), HexUtil.hexToByteArray(macKey), ZERO_IVC);
 
-        System.out.println(HexUtil.encodeHexStr(macValue));
+        System.out.println(HexUtil.byteArrayToHexString(macValue));
     }
 }
