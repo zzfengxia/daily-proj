@@ -1,3 +1,4 @@
+/*
 package com.zz.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,11 +17,13 @@ import java.security.spec.*;
 import java.util.HashMap;
 import java.util.Map;
 
+*/
 /**
  * Created by Francis.zz on 2016-04-21.
  * 描述：签名验签，RSA加解密 <br/>
  * 使用jar包：commons-codec-1.8.jar;Base64编码支持包 <br/>
- */
+ *//*
+
 public class RSAUtil {
     public static final String KEY_ALGORITHM = "RSA";                   // 密钥生成算法
     public static final String PUBLIC_KEY = "RSAPublicKey";
@@ -34,11 +37,13 @@ public class RSAUtil {
     private static final int KEY_SIZE = 512;                            // 密钥长度(bit)
     private static final int MAX_ENCRYPT_SIZE = KEY_SIZE / 8 -11;       // 最大加密长度(明文长度byte)
     private static final int MAX_DECRYPT_SIZE = KEY_SIZE / 8;           // 最大解密长度(密文长度byte)
-    /**
+    */
+/**
      * 生成密钥对
      * @return
      * @throws Exception
-     */
+     *//*
+
     public static KeyPair getKeyPair() throws Exception {
         KeyPairGenerator generator = KeyPairGenerator.getInstance(KEY_ALGORITHM);
 
@@ -48,11 +53,13 @@ public class RSAUtil {
         return keyPair;
     }
 
-    /**
+    */
+/**
      * 从密钥对中获取公钥和私钥的16进制字符串
      * @param keyPair 密钥对
      * @return
-     */
+     *//*
+
     public static Map<String, Map<String, Object>> retrieveKeySet(KeyPair keyPair) {
         Map<String, Map<String, Object>> keyResult = new HashMap<String, Map<String, Object>>();
 
@@ -95,14 +102,16 @@ public class RSAUtil {
         return keyResult;
     }
 
-    /**
+    */
+/**
      * 使用模数和指数生成公钥或私钥
      * @param module 模数(16进制)
      * @param exponent 指数(16进制)
      * @param type 密钥类型
      * @return
      * @throws Exception
-     */
+     *//*
+
     public static Key getKey(String module, String exponent, String type) throws Exception {
         BigInteger mo = new BigInteger(module, 16);
         BigInteger po = new BigInteger(exponent, 16);
@@ -123,13 +132,15 @@ public class RSAUtil {
         return reKey;
     }
 
-    /**
+    */
+/**
      * 使用私钥对数据进行签名，返回签名后的16进制数据
      * @param data 需要签名的数据
      * @param key 私钥
      * @param model 签名算法
      * @return
-     */
+     *//*
+
     public static String getSignHex(String data, PrivateKey key, String model) throws Exception {
         Signature signature = Signature.getInstance(model);
         // 初始化签名的私钥
@@ -142,7 +153,8 @@ public class RSAUtil {
         return HexUtil.byteArrayToHexString(singInfo);
     }
 
-    /**
+    */
+/**
      * 验签
      * @param signCode 签名后的数据
      * @param data 原始数据
@@ -150,7 +162,8 @@ public class RSAUtil {
      * @param model 签名算法
      * @return
      * @throws Exception
-     */
+     *//*
+
     public static boolean verifySign(byte[] signCode, String data, PublicKey key, String model) throws Exception {
         Signature signature = Signature.getInstance(model);
         // 初始化验签的公钥
@@ -161,13 +174,15 @@ public class RSAUtil {
         return signature.verify(signCode);
     }
 
-    /**
+    */
+/**
      * 将字节数组类型的密钥转换为对应的密钥对象
      * @param key
      * @param keyType
      * @return
      * @throws Exception
-     */
+     *//*
+
     public static Key getKey(byte[] key, String keyType) throws Exception {
         KeyFactory factory = KeyFactory.getInstance(KEY_ALGORITHM);
         Key reKey = null;
@@ -184,25 +199,29 @@ public class RSAUtil {
         return reKey;
     }
 
-    /**
+    */
+/**
      * 将经过base64编码后的密钥转换为对应的密钥对象
      * @param key
      * @param keyType
      * @return
      * @throws Exception
-     */
+     *//*
+
     public static Key getKey(String key, String keyType) throws Exception {
         byte[] keyByte = Base64.decodeBase64(key);
         return getKey(keyByte, keyType);
     }
 
-    /**
+    */
+/**
      * 公钥加密操作（Cipher不是线程安全的，使用static不适应多线程的情况）
      * @param data 需要加密的数据
      * @param publicKey 公钥
      * @return
      * @throws Exception
-     */
+     *//*
+
     public static byte[] encryptByPublicKey(byte[] data, PublicKey publicKey) throws Exception {
         Cipher cipher = Cipher.getInstance(KEY_ALGORITHM);
         // 初始化(加密/解密，密钥)
@@ -230,13 +249,15 @@ public class RSAUtil {
         return encryptInfo;
     }
 
-    /**
+    */
+/**
      * 使用私钥解密数据（Cipher不是线程安全的，使用static不适应多线程的情况）
      * @param data 需要解密的数据
      * @param privateKey 私钥
      * @return
      * @throws Exception
-     */
+     *//*
+
     public static byte[] decryptByPrivateKey(byte[] data, PrivateKey privateKey) throws Exception {
         Cipher cipher = Cipher.getInstance(KEY_ALGORITHM);
         // 初始化
@@ -377,18 +398,38 @@ public class RSAUtil {
         }
     }
 
-    /** KeyStore对象测试 */
+    */
+/** KeyStore对象测试 *//*
+
     @Test
     public void testKeyStore() throws Exception {
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 
     }
 
-    /**
+    @Test
+    public void testSign2() throws Exception {
+        String moHex = "8B6D8CAE9C9494FC1AE3C90E5869111447FA19F66F62D904787C973862D08B0056CA891ECA0CA7CF5D38407BA7AF8FC9A83624CDC46B9A47B0FEBAD0FC730D80C7C1CA1088731D758C6D26A3A2DF7BD7634EEA107B6D752609A16C9C671758A853135214425C58B0DD25779DFB070B08817F0828C72BEF11A5D7F998D0F81D49";
+        String poHex = "10001";
+
+        String data = "{\"txncode\":\"charge\",\"cardno\":\"2253123456781234\"}";
+        String signValue = "8501C57883A26FFDA679403816E31BC3B455C5E04BDE47711BAF50A926151BEB0BE895E2563C1BE205D5E2054A1321FFF5A09D39677A4EE7A856AB1FD74F0A38641A868C5C7A781F89D2496D978DDF6B63E44110C52D58E5D1106271A75083A4E948D19B7BB9BE0040D85536FDAC1649015C2049586590CF878DFE110507E87A";
+        PublicKey publicKey = (PublicKey) getKey(moHex, poHex, PUBLIC_KEY);
+        Signature signature = Signature.getInstance("SHA1WithRSA");
+        signature.initVerify(publicKey);
+        signature.update(data.getBytes("UTF-8"));
+
+        System.out.println(signature.verify(HexUtil.hexToByteArray(signValue)));
+    }
+
+    */
+/**
      * 测试从.pem,.crt文件中获取公私钥进行签名验签
      * 使用jar包：
-     */
-    /*@Test11
+     *//*
+
+    */
+/*@Test11
     public void testGetKeyFromPEM(){
         String data = "479010800036299553550E98B1FF7AFCC7C932747A63417DF811";
         String pivateKeyPath = "C:\\Users\\Administrator.SC-201603281046\\Desktop\\日常\\key\\test_1.pem";
@@ -484,5 +525,7 @@ public class RSAUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }*/
+    }*//*
+
 }
+*/

@@ -1,8 +1,12 @@
+/*
 package com.zz.utils;
 
 
+import org.bouncycastle.jcajce.provider.asymmetric.util.DESUtil;
+
 import java.security.GeneralSecurityException;
 
+*/
 /**
  * 关键字：Java MAC计算
  *
@@ -22,9 +26,11 @@ import java.security.GeneralSecurityException;
  * ---+ DES ---+ DES ---+ DES ---> MAC | | | | KEY KEY KEY KEY
  *
  * 返回 -- 加密后的缓冲区
- */
+ *//*
+
 public class ANSIMacUtils {
-    /**
+    */
+/**
      * ANSI X9.9MAC算法  <br/>
      * (1) ANSI X9.9MAC算法只使用单倍长密钥。  <br/>
      * (2)  MAC数据先按8字节分组，表示为D0～Dn，如果Dn不足8字节时，尾部以字节00补齐。 <br/>
@@ -36,7 +42,8 @@ public class ANSIMacUtils {
      * @param key  8字节密钥数据
      * @param data 待计算的缓冲区
      * @throws GeneralSecurityException
-     */
+     *//*
+
     public static byte[] calculateANSIX9_9MAC(byte[] key, byte[] data) throws GeneralSecurityException {
 
         final int dataLength = data.length;
@@ -59,7 +66,8 @@ public class ANSIMacUtils {
         return desXor;
     }
 
-    /**
+    */
+/**
      * 采用ANSI x9.19算法计算MAC (Count MAC by ANSI-x9.19).<br/>
      * 将ANSI X9.9的结果做如下计算<br/>
      * (6) 用MAC密钥右半部解密(5)的结果。 <br/>
@@ -68,7 +76,8 @@ public class ANSIMacUtils {
      * @param key  16字节密钥数据
      * @param data 待计算的缓冲区
      * @throws GeneralSecurityException
-     */
+     *//*
+
     public static byte[] calculateANSIX9_19MAC(byte[] key, byte[] data) throws GeneralSecurityException {
         if (key == null || data == null)
             return null;
@@ -88,3 +97,4 @@ public class ANSIMacUtils {
         return DESUtil.encryptByDesEcb(resultTemp, keyLeft);
     }
 }
+*/

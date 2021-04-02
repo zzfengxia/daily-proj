@@ -1,15 +1,18 @@
+/*
 package com.zz.dailytest;
 
-import com.zz.utils.DESUtil;
 import com.zz.utils.HexUtil;
 import com.zz.utils.StringUtil;
+import org.bouncycastle.jcajce.provider.asymmetric.util.DESUtil;
 
 import java.util.Map;
 
+*/
 /**
  * Created by Francis.zz on 2016-05-19.
  * 描述：模拟UICC、SZT密钥分散(使用3DES算法) <br/>
- */
+ *//*
+
 public class MockKeyDerivation {
     public static final String QA_KEY  = "key";
     public static final String SD_AID  = "sdAid";
@@ -17,12 +20,14 @@ public class MockKeyDerivation {
     public static final String PADDING = "padding";
     public static final String KEY_VER = "keyVersion";
 
-    /**
+    */
+/**
      * UICC密钥分散
      * @param keyType
      * @param param
      * @return
-     */
+     *//*
+
     public static byte[] generateUICCKey(byte keyType, Map param) throws Exception {
         if(StringUtil.isEmpty(param)) {
             throw new Exception("Params for Generated key is none.");
@@ -47,13 +52,15 @@ public class MockKeyDerivation {
         return finalKey;
     }
 
-    /**
+    */
+/**
      * SZT密钥分散
      * @param keyType
      * @param param
      * @return
      * @throws Exception
-     */
+     *//*
+
     public static byte[] generateSZTKey(byte keyType, Map param) throws Exception {
         if(StringUtil.isEmpty(param)) {
             throw new Exception("Params for Generated key is none.");
@@ -74,13 +81,15 @@ public class MockKeyDerivation {
         return finalKey;
     }
 
-    /**
+    */
+/**
      * 使用3des算法加密分散因子
      * @param factor
      * @param key
      * @return
      * @throws Exception
-     */
+     *//*
+
     private static byte[] uiccKeyDerivation(byte[] factor, byte[] key) throws Exception {
         byte[] finalKey = new byte[16];
         byte[] temp = new byte[8];
@@ -97,7 +106,8 @@ public class MockKeyDerivation {
         return finalKey;
     }
 
-    /**
+    */
+/**
      * 使用10字节的SEID与8个字节填充+1byte KeyVersion + 1byte keyType组成的10字节数据做异或操作
      * @param seidStr SEID
      * @param padding 填充字节
@@ -105,7 +115,8 @@ public class MockKeyDerivation {
      * @param keyType
      * @return
      * @throws Exception
-     */
+     *//*
+
     private static byte[] getDerivationFactor(String seidStr, byte padding, byte keyVer, byte keyType) throws Exception {
         System.out.println("-- Begin to generate second derivation factor.");
         if(StringUtil.isEmpty(seidStr)) {
@@ -129,12 +140,14 @@ public class MockKeyDerivation {
         return result;
     }
 
-    /**
+    */
+/**
      * 根据KeyType获取SZT一级分散因子
      * @param keyType 加密类型
      * @return
      * @throws Exception
-     */
+     *//*
+
     public static byte[] getKsFactorByKeyType(byte keyType) throws Exception {
         byte[] factor = null;
 
@@ -158,11 +171,13 @@ public class MockKeyDerivation {
         return factor;
     }
 
-    /**
+    */
+/**
      * 根据seid获取SZT二级分散因子
      * @param seId
      * @return
-     */
+     *//*
+
     public static byte[] getKsFactorBySEID(String seId) throws Exception {
         int len = seId == null ? 0 : seId.length();
         if(len >= 16) {
@@ -180,3 +195,4 @@ public class MockKeyDerivation {
         return factor;
     }
 }
+*/

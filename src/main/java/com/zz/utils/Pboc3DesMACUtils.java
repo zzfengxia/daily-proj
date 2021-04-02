@@ -1,11 +1,13 @@
+/*
 package com.zz.utils;
 
-/**
+*
  * Created by Francis.zz on 2017/11/13.
- */
+
+
 public class Pboc3DesMACUtils {
     public static final byte[] ZERO_IVC = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
-    /**
+*
      * 计算MAC(hex) PBOC_3DES_MAC(符合ISO9797Alg3Mac标准)(3DES-ECB算法生成的mac)
      * (16的整数补8000000000000000) 前n-1组使用单长密钥DES 使用密钥是密钥的左8字节） 最后1组使用双长密钥3DES （使用全部16字节密钥）
      *
@@ -18,7 +20,8 @@ public class Pboc3DesMACUtils {
      * @param icv 算法向量
      * @return mac签名
      * @throws Exception
-     */
+
+
     public static byte[] calculatePboc3desMAC(byte[] data, byte[] key, byte[] icv) throws Exception {
 
         if (key == null || data == null) throw new RuntimeException("data or key is null.");
@@ -58,3 +61,4 @@ public class Pboc3DesMACUtils {
         System.out.println(HexUtil.byteArrayToHexString(macValue));
     }
 }
+*/

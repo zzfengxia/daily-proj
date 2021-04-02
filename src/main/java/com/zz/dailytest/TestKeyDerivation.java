@@ -1,3 +1,4 @@
+/*
 package com.zz.dailytest;
 
 import com.zz.utils.HexUtil;
@@ -7,10 +8,12 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+*/
 /**
  * Created by Francis.zz on 2016-05-06.
  * 描述：<br/>
- */
+ *//*
+
 public class TestKeyDerivation {
     private Map<String, Object> params;
 
@@ -25,7 +28,9 @@ public class TestKeyDerivation {
         params.put(MockKeyDerivation.KEY_VER, 32);
     }
 
-    /** 测试UICC密钥分散 */
+    */
+/** 测试UICC密钥分散 *//*
+
     @Test
     public void testUICC() throws Exception {
 
@@ -38,7 +43,9 @@ public class TestKeyDerivation {
         System.out.println("-- UICC DK3: " + HexUtil.byteArrayToHexString(key3));
     }
 
-    /** 测试深圳通密钥分散 */
+    */
+/** 测试深圳通密钥分散 *//*
+
     @Test
     public void testSZT() throws Exception {
         // SZT params
@@ -56,3 +63,4 @@ public class TestKeyDerivation {
         System.out.println("-- UICC DK4: " + HexUtil.byteArrayToHexString(key4));
     }
 }
+*/
