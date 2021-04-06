@@ -113,7 +113,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>4.13.1</version>
         </dependency>
 
         <!-- Java 平台的开放源码的轻量级密码术包 -->
