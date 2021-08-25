@@ -5,6 +5,7 @@ import com.zz.bean.User;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Assert;
 import org.junit.Test;
+import sun.security.rsa.RSACore;
 
 import javax.crypto.Cipher;
 import java.io.ByteArrayOutputStream;
@@ -45,9 +46,9 @@ public class RSAUtil {
     public static final String EXPONENT = "exponent";
     public static final String SIGNATURE_ALGORITHM = "SHA1withRSA";        // 签名算法
     
-    private static final int KEY_SIZE = 1024;                            // 密钥长度(bit)
+    private static final int KEY_SIZE = 4096;                            // 密钥长度(bit)
     private static final int MAX_ENCRYPT_SIZE = KEY_SIZE / 8 - 11;       // 最大加密长度(明文长度byte)
-    private static final int MAX_DECRYPT_SIZE = KEY_SIZE / 8;           // 最大解密长度(密文长度byte)
+    private static final int MAX_DECRYPT_SIZE = KEY_SIZE / 8;           // 最大解密长度(密文长度byte)，1个字节8位，0<数据长度<密钥长度
     
     /**
      * 生成密钥对
@@ -253,6 +254,8 @@ public class RSAUtil {
     
     /**
      * 公钥加密操作（Cipher不是线程安全的，使用static不适应多线程的情况）
+     * 0<需要加密的数据长度<密钥长度，否则需要分段
+     * 加密后，密文数据长度自动填充到跟密钥长度一致
      *
      * @param data      需要加密的数据
      * @param publicKey 公钥
@@ -268,27 +271,32 @@ public class RSAUtil {
         // 判断需要加密的字节数，做分片处理
         int dataLen = data.length;
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        byte[] temp;
-        int i = 0;
-        int offset = 0;
-        while (dataLen - offset > 0) {
-            if (dataLen - offset > MAX_ENCRYPT_SIZE) {
-                temp = cipher.doFinal(data, offset, MAX_ENCRYPT_SIZE);
-            } else {
-                temp = cipher.doFinal(data, offset, dataLen - offset);
+        byte[] encryptInfo = null;
+        try {
+            byte[] temp;
+            int i = 0;
+            int offset = 0;
+            while (dataLen - offset > 0) {
+                if (dataLen - offset > MAX_ENCRYPT_SIZE) {
+                    temp = cipher.doFinal(data, offset, MAX_ENCRYPT_SIZE);
+                } else {
+                    temp = cipher.doFinal(data, offset, dataLen - offset);
+                }
+                outStream.write(temp, 0, temp.length);
+                i++;
+                offset = i * MAX_ENCRYPT_SIZE;
             }
-            outStream.write(temp, 0, temp.length);
-            i++;
-            offset = i * MAX_ENCRYPT_SIZE;
+
+            encryptInfo = outStream.toByteArray();
+            return encryptInfo;
+        } finally {
+            outStream.close();
         }
-        
-        byte[] encryptInfo = outStream.toByteArray();
-        outStream.close();
-        return encryptInfo;
     }
     
     /**
      * 使用私钥解密数据（Cipher不是线程安全的，使用static不适应多线程的情况）
+     * 0<需要解密的数据长度<密钥长度，否则需要分段
      *
      * @param data       需要解密的数据
      * @param privateKey 私钥
@@ -303,24 +311,29 @@ public class RSAUtil {
         
         // 判断密文是否超过最大长度，做分片处理
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        byte[] temp;
-        int dataLen = data.length;
-        int offset = 0;
-        int i = 0;
-        while (dataLen - offset > 0) {
-            if (dataLen - offset > MAX_DECRYPT_SIZE) {
-                temp = cipher.doFinal(data, offset, MAX_DECRYPT_SIZE);
-            } else {
-                temp = cipher.doFinal(data, offset, dataLen - offset);
+        byte[] decryptInfo = null;
+        try {
+            byte[] temp;
+            int dataLen = data.length;
+            System.out.println("dataLen:" + dataLen);
+            int offset = 0;
+            int i = 0;
+            while (dataLen - offset > 0) {
+                if (dataLen - offset > MAX_DECRYPT_SIZE) {
+                    temp = cipher.doFinal(data, offset, MAX_DECRYPT_SIZE);
+                } else {
+                    temp = cipher.doFinal(data, offset, dataLen - offset);
+                }
+                outputStream.write(temp, 0, temp.length);
+                i++;
+                offset = MAX_DECRYPT_SIZE * i;
             }
-            outputStream.write(temp, 0, temp.length);
-            i++;
-            offset = MAX_DECRYPT_SIZE * i;
+
+            decryptInfo = outputStream.toByteArray();
+            return decryptInfo;
+        } finally {
+            outputStream.close();
         }
-        
-        byte[] decryptInfo = outputStream.toByteArray();
-        outputStream.close();
-        return decryptInfo;
     }
     
     @Test
@@ -398,15 +411,15 @@ public class RSAUtil {
     }
     
     @Test
-    public void testDecrypt() {
-        String moHex = "c8c909c5fc432bc0e2de72510539c7282f4f011f97fdcad52623c6d01b007e7d17d9d2965fac08e603f5dcb44697691f51da14a834f3cfd4af4570d6582a75cf";
-        String poHex = "8300e8a78d18268c0b7a280c44e495d4da4929ea7b38d4068e83f94bfed22bb4393d44e9231a32fca344b7744739b6e075ea207d45224da517a51a491d1d5101";
-        
+    public void testDecrypt2() {
+        String priKey = "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";
+
         String data = "hello, this is encrypt test! 你好，这是一个加解密的测试！this test is success!本次测试很成功！";
-        String encryptInfo = "wfm1eQL+aEScl6zDPkGcjxhg1CucSO2sackgP0/6rup8ssu0YFrJvrqCkG6GOpoeau/lmA9n3eXoHHotgjYvsRioWLZeDzLEj785GEwgKmBh4uETxk3pqJkJHYaTubo80jVWjkDAAKLmJT9FSV3TjQUJwbsvZ7kSSmP+1j6qIvqcSJNBvEAMKqbu5DOM/c+TthB4qdCWNlbhkT8iEPdrYTTiRwZZjIvmkAf02jJKZ4ERgB/vOI+DCrQeS4lRXIym";
+        String encryptInfo = "XUUCAbyaNFXXa4d0QWqfC0k07xvefkv39SnusqxXPOjFd7FzdyBqBy1dRPq1tKCfKkxosknyUeNtAVocj5jdg4ZJLIY4WG6+4HdyCfPzZFFqSF5pkGPcCuqqzzbdt8/UcfUAnS/4kqS6PuMp3uAbOW3QIS4LHZeNgg+VqchY263cpgMJ7e3tIfyGyxj0ZktCw4espRqTPcDf73/YwJ5hQSdPo9gU9kaN5r5tEk244309IL2rqQqxkH/8wmuw9UhO+GbS6NCcJKhECK9sE7YErcdc6h4ADzXypFTbWoeo6zo9Pq8gnCbogJ9qGgH9JmMPEw73BJA11nvRaP79B488Ycyz0H3X1qNFDPpCKQl3fxwqhsaket1UI+P/tRhFzbTkuUpN32Qrf2jKSRNsguFgCvx21hW0AgKri14dgOXnUi9zQnimlpvCbYoMye2BOV98LcqIrKjkKVOfxnDx6zhwasYRAS8G/fa8fZBI7X8YkCMTo3z8SjQ/oK03TRQTCmE6uEo8JiR05fdqp/YHDQD2sc1lqDoRD+GksjZkz14of6y+dk7ypu5e980J21FO0/z56pvK65m5AiQwk86Gj8RcghYOfABwKbxrBltKxh1ORQ3kTVeXMOuIL3a0gfGjmGi8v73w7eN7T7UgNWfgc1QvK9FsQ3E/ZR8vggTY1SJ0mOc=";
         // 获取私钥
         try {
-            PrivateKey privateKey = (PrivateKey) RSAUtil.getKey(moHex, poHex, PRIVATE_KEY);
+            PrivateKey privateKey = (PrivateKey) RSAUtil.getKey(priKey, PRIVATE_KEY);
+            System.out.println("privateKey size:" + RSACore.getByteLength(((RSAPrivateKey) privateKey).getModulus()));
             byte[] decryptInfo = RSAUtil.decryptByPrivateKey(Base64.decodeBase64(encryptInfo), privateKey);
             String textStr = new String(decryptInfo);
             Assert.assertTrue(textStr.equals(data));
@@ -414,7 +427,27 @@ public class RSAUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+    }
+
+    @Test
+    public void testDecrypt() {
+        String moHex = "c8c909c5fc432bc0e2de72510539c7282f4f011f97fdcad52623c6d01b007e7d17d9d2965fac08e603f5dcb44697691f51da14a834f3cfd4af4570d6582a75cf";
+        String poHex = "8300e8a78d18268c0b7a280c44e495d4da4929ea7b38d4068e83f94bfed22bb4393d44e9231a32fca344b7744739b6e075ea207d45224da517a51a491d1d5101";
+
+        String data = "hello, this is encrypt test! 你好，这是一个加解密的测试！this test is success!本次测试很成功！";
+        String encryptInfo = "wfm1eQL+aEScl6zDPkGcjxhg1CucSO2sackgP0/6rup8ssu0YFrJvrqCkG6GOpoeau/lmA9n3eXoHHotgjYvsRioWLZeDzLEj785GEwgKmBh4uETxk3pqJkJHYaTubo80jVWjkDAAKLmJT9FSV3TjQUJwbsvZ7kSSmP+1j6qIvqcSJNBvEAMKqbu5DOM/c+TthB4qdCWNlbhkT8iEPdrYTTiRwZZjIvmkAf02jJKZ4ERgB/vOI+DCrQeS4lRXIym";
+        // 获取私钥
+        try {
+            PrivateKey privateKey = (PrivateKey) RSAUtil.getKey(moHex, poHex, PRIVATE_KEY);
+            System.out.println("privateKey size:" + RSACore.getByteLength(((RSAPrivateKey) privateKey).getModulus()));
+            byte[] decryptInfo = RSAUtil.decryptByPrivateKey(Base64.decodeBase64(encryptInfo), privateKey);
+            String textStr = new String(decryptInfo);
+            Assert.assertTrue(textStr.equals(data));
+            System.out.println("解密后的信息：" + data);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
     
     @Test
@@ -435,6 +468,25 @@ public class RSAUtil {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void testEncrypt2() {
+        String pubKey = "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAlZJPO5EZxWH0+Bi2Di2Moh1BGCPtAF4ZAjSVt96ls/ng9GbcbPwI9pvWSweAF4jmJARK77rGc/xSngwt7tjemeGSaVVDwXoF7z3pUZQhKcSp5GhH/t+wb+s9amE8dpt5JA7HskduHgLiQqrIPSVZiHyfYcvxP3htgghcpjyMkCXdk4hdZw/A7KrfYzpdHXG898HK/9xTTptWMFnUSAZ3kdKPXfMdxzw/iP1e3NWODEqt2AWmrVakmp4CkhH9lqhQuWtWf4THVT7Tks5QuWsZD3pC+ca5XWHfVZmhPKJ/QK+xiIzUbGEtQWWFvepxL9a6CvJ+FgftxUAA48zwkSi5nBT8IukRsIbtfcfkYk1MTbGd/oCGGOBH5fbvu22zyVVxcfJdiPFO9u1YrcAoQKMpiuOBIgViaf5vSye6xkSL6+OLMoagHHj0NbhUc+wKQdSbGHIyx2BLD3nkmVRTTOP1LAXrMCkn//nPKSM6fiRv6UW5pKe4PDgKhPu7zSY06kJZ4upM7CUnbVt1c1wmObhXt6UySkXb3ajElG0xqHEemPL8ytcJUHpc6DYvRDtL4AdybZrtAwAkxOUb2RY7KuMvP4VCI9zU2PKYy/3b1meBJFs9sJEYhjbk040UuL65phOnAXczqQygt/Ktnksq3lm54CiRzU8wpaKAzcgtkELbR/8CAwEAAQ==";
+
+        String data = "hello, this is encrypt test! 你好，这是一个加解密的测试！this test is success!本次测试很成功！";
+        // 获取公钥
+        try {
+            PublicKey publicKey = (PublicKey) RSAUtil.getKey(pubKey, PUBLIC_KEY);
+            System.out.println("publicKey size:" + RSACore.getByteLength(((RSAPublicKey) publicKey).getModulus()));
+            byte[] encryptInfo = RSAUtil.encryptByPublicKey(data.getBytes(), publicKey);
+            System.out.println("原数据：" + data);
+            System.out.println("明文字节数：" + data.getBytes().length);
+            System.out.println("---------------密文(base64)---------------");
+            System.out.println(Base64.encodeBase64String(encryptInfo));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     
     /**
      * 生产RSA公私钥，模指
@@ -442,7 +494,10 @@ public class RSAUtil {
     
     @Test
     public void testGetKey() throws Exception {
-        KeyPair keyPair = RSAUtil.getKeyPair(2048);
+        long start = System.currentTimeMillis();
+        KeyPair keyPair = RSAUtil.getKeyPair(4096);
+        long end = System.currentTimeMillis();
+        System.out.println("耗时：" + (end - start));
         Map<String, Map<String, Object>> keyInfo = RSAUtil.retrieveKeySet(keyPair);
         // 私钥签名
         Map<String, Object> priKeyInfo = keyInfo.get(PRIVATE_KEY);
@@ -473,6 +528,8 @@ public class RSAUtil {
         System.out.println(pubMo);
         System.out.println("---------------公钥素数(16进制)---------------");
         System.out.println(pubPo);
+        end = System.currentTimeMillis();
+        System.out.println("耗时：" + (end - start));
     }
     
     @Test
