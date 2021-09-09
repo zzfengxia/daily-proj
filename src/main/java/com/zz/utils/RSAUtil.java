@@ -8,6 +8,8 @@ import org.junit.Test;
 import sun.security.rsa.RSACore;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.OAEPParameterSpec;
+import javax.crypto.spec.PSource;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.security.Key;
@@ -21,6 +23,7 @@ import java.security.Signature;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.KeySpec;
+import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
@@ -303,7 +306,6 @@ public class RSAUtil {
      * @return
      * @throws Exception
      */
-    
     public static byte[] decryptByPrivateKey(byte[] data, PrivateKey privateKey) throws Exception {
         Cipher cipher = Cipher.getInstance(KEY_ALGORITHM);
         // 初始化
@@ -335,7 +337,40 @@ public class RSAUtil {
             outputStream.close();
         }
     }
-    
+
+    public static byte[] decryptByPrivateKey2(byte[] data, PrivateKey privateKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING");
+        // 初始化
+        cipher.init(Cipher.DECRYPT_MODE, privateKey, new OAEPParameterSpec("SHA-256", "MGF1", new MGF1ParameterSpec("SHA-256"), PSource.PSpecified.DEFAULT));
+
+
+        // 判断密文是否超过最大长度，做分片处理
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        byte[] decryptInfo = null;
+        try {
+            byte[] temp;
+            int dataLen = data.length;
+            System.out.println("dataLen:" + dataLen);
+            int offset = 0;
+            int i = 0;
+            while (dataLen - offset > 0) {
+                if (dataLen - offset > MAX_DECRYPT_SIZE) {
+                    temp = cipher.doFinal(data, offset, MAX_DECRYPT_SIZE);
+                } else {
+                    temp = cipher.doFinal(data, offset, dataLen - offset);
+                }
+                outputStream.write(temp, 0, temp.length);
+                i++;
+                offset = MAX_DECRYPT_SIZE * i;
+            }
+
+            decryptInfo = outputStream.toByteArray();
+            return decryptInfo;
+        } finally {
+            outputStream.close();
+        }
+    }
+
     @Test
     public void testSign() {
         User user = new User();
@@ -443,11 +478,29 @@ public class RSAUtil {
             byte[] decryptInfo = RSAUtil.decryptByPrivateKey(Base64.decodeBase64(encryptInfo), privateKey);
             String textStr = new String(decryptInfo);
             Assert.assertTrue(textStr.equals(data));
-            System.out.println("解密后的信息：" + data);
+            System.out.println("解密后的信息：" + textStr);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+    }
+
+    @Test
+    public void testDecrypt3() {
+        String priKey = "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";
+
+        String encryptInfo = "EHqKuCrjTwKI5VUhsl9MLGVWQO1FCsBIzTaPuGQqaVESz3TybxHoeknGZ0y9K3zsTdAW5SOxK7Aiow86ASkztpc4WBH9nEGn/KHAP1KZGqqgBposKKs4mMQbyfB+7Pu281XEgCRAsYlcLTN/3fPVoEERKd1ox2zE2OFtOUvw+FV1NiAxgreyRP5tvhBqQ8wEhTZTbANtg1qB7Va+8JuXaOW4NRcaaYsW9/dJlOxnAeDwxPmM2agaPuz/h5Vn4/wqGe/qUPjGhFiXLJWwh3d0y8UeeJmuXXLDkOg8K9AQ2dQWf1Yxdpjunxrv2Y9OIGVrPuHgQYdI8nG7rfzOz3EfAap8O9aW9It5V9zM+1Rb0USLk2/wcz+AhHTvf8n/M2vGImhD19+gac7zbkHA/PYHGTWveqeLOkt/icsCiWxqyK/aIcc4RwKpbU4O8m8eMuB6kKwppCpbnJihatyNE5noxPtN6stfXqiP4Uuafiw2eheWGFgQHVOAFoJIJdnuNL2726QFNf45XNr3qhkBC2KmyMFOGwqJB32hJH/3SUTbf6R1GByTU4CpfAkUCIMKqeQ+0A1QoJ9/14jFwSChGpldenZjZjUe6kvTJGZBiomCcHKbpk4rTSzquikrj19tch7MAOMxEoKOHLCSqt3FHzZ7+Pv1o15q32OAjlNzABMDh1o=";
+        // 获取私钥
+        try {
+            PrivateKey privateKey = (PrivateKey) RSAUtil.getKey(priKey, PRIVATE_KEY);
+            // 密钥长度是指位数，需要字节数*8
+            System.out.println("privateKey size:" + RSACore.getByteLength(((RSAPrivateKey) privateKey).getModulus()) * 8);
+            byte[] decryptInfo = RSAUtil.decryptByPrivateKey2(Base64.decodeBase64(encryptInfo), privateKey);
+            String textStr = new String(decryptInfo);
+            System.out.println("解密后的信息：" + textStr);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     @Test
